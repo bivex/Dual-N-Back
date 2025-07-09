@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажер Памяти - Dual N-Back</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Тренажер Памяти - Dual N-Back</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="label">Сессий сегодня:</span>
+                    <span id="sessions-today">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Уровень N-Back:</span>
+                    <span id="nback-level">2</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Режим:</span>
+                    <span id="game-mode">Автоматический</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="time-display" id="time-display">--:--</div>
+            </div>
+            
+            <div class="game-content">
+                <div class="grid-container">
+                    <div class="grid">
+                        <div class="cell" data-position="0"></div>
+                        <div class="cell" data-position="1"></div>
+                        <div class="cell" data-position="2"></div>
+                        <div class="cell" data-position="3"></div>
+                        <div class="cell" data-position="4"></div>
+                        <div class="cell" data-position="5"></div>
+                        <div class="cell" data-position="6"></div>
+                        <div class="cell" data-position="7"></div>
+                        <div class="cell" data-position="8"></div>
+                    </div>
+                </div>
+
+                <div class="game-info">
+                    <div class="current-letter" id="current-letter">-</div>
+                    <div class="match-buttons">
+                        <button id="position-match-btn" class="match-btn position-btn">
+                            <span class="btn-key">A</span>
+                            <span class="btn-text">Совпадение позиции</span>
+                        </button>
+                        <button id="word-match-btn" class="match-btn letter-btn">
+                            <span class="btn-key">L</span>
+                            <span class="btn-text">Совпадение слова</span>
+                        </button>
+                    </div>
+                    <div class="instructions">
+                        <p><strong>A</strong> - совпадение позиции</p>
+                        <p><strong>L</strong> - совпадение слова</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="session-settings">
+            <div class="setting-group">
+                <label for="session-duration">Время сессии (секунды):</label>
+                <select id="session-duration" class="setting-select">
+                    <option value="30">30 сек</option>
+                    <option value="60" selected>1 мин</option>
+                    <option value="120">2 мин</option>
+                    <option value="180">3 мин</option>
+                    <option value="300">5 мин</option>
+                    <option value="600">10 мин</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label for="trial-interval">Интервал между ходами (мс):</label>
+                <select id="trial-interval" class="setting-select">
+                    <option value="2000">2 сек</option>
+                    <option value="3000" selected>3 сек</option>
+                    <option value="4000">4 сек</option>
+                    <option value="5000">5 сек</option>
+                </select>
+                <div class="trial-timer" id="trial-timer"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="start-btn" class="btn primary">Начать сессию</button>
+            <button id="pause-btn" class="btn secondary" disabled>Пауза</button>
+            <button id="manual-btn" class="btn">Ручной режим</button>
+            <button id="level-down" class="btn">F1 - Уменьшить уровень</button>
+            <button id="level-up" class="btn">F2 - Увеличить уровень</button>
+            <button id="run-tests" class="btn" onclick="runNBackTests()">🧪 Запустить тесты</button>
+        </div>
+
+        <div class="score-panel">
+            <div class="score-item">
+                <span class="label">Позиция:</span>
+                <span id="position-score">0%</span>
+            </div>
+            <div class="score-item">
+                <span class="label">Слово:</span>
+                <span id="letter-score">0%</span>
+            </div>
+            <div class="score-item">
+                <span class="label">Общий:</span>
+                <span id="total-score">0%</span>
+            </div>
+        </div>
+        
+        <div class="timing-panel">
+            <div class="timing-item">
+                <span class="label">Время ответа (позиция):</span>
+                <span id="position-avg-time">--</span>
+            </div>
+            <div class="timing-item">
+                <span class="label">Время ответа (слово):</span>
+                <span id="letter-avg-time">--</span>
+            </div>
+        </div>
+
+        <div class="feedback-panel">
+            <h3>Результаты ответов</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Тип</th>
+                        <th>Верно</th>
+                        <th>Неверно</th>
+                        <th>Пропущено</th>
+                        <th>Ложные срабатывания</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Позиция</td>
+                        <td id="position-correct">0</td>
+                        <td id="position-incorrect">0</td>
+                        <td id="position-missed">0</td>
+                        <td id="position-false-alarm">0</td>
+                    </tr>
+                    <tr>
+                        <td>Слово</td>
+                        <td id="letter-correct">0</td>
+                        <td id="letter-incorrect">0</td>
+                        <td id="letter-missed">0</td>
+                        <td id="letter-false-alarm">0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tutorial">
+            <h3>Как играть:</h3>
+            <p><strong>Dual 1-Back:</strong> Запоминайте позицию квадрата и слово от 1 хода назад</p>
+            <p><strong>Dual 2-Back:</strong> Запоминайте позицию квадрата и слово от 2 ходов назад</p>
+            <p>Нажимайте <strong>A</strong> если позиция квадрата совпадает с позицией N ходов назад</p>
+            <p>Нажимайте <strong>L</strong> если слово совпадает со словом N ходов назад</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="test.js"></script>
+</body>
+</html> 

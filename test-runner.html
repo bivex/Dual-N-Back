@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тесты алгоритмов Dual N-Back</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .test-controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #63b3ed;
+            color: white;
+            margin: 0 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(99, 179, 237, 0.2);
+        }
+        
+        .btn.secondary {
+            background-color: #48bb78;
+        }
+        
+        .btn.secondary:hover {
+            box-shadow: 0 2px 8px rgba(72, 187, 120, 0.2);
+        }
+        
+        .test-results {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .test-description {
+            background-color: #edf2f7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-description h3 {
+            color: #2d3748;
+            margin-top: 0;
+        }
+        
+        .test-description ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .test-description li {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+        
+        .success-rate {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .success-rate.perfect {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .success-rate.partial {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .success-rate.failed {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Тесты алгоритмов Dual N-Back</h1>
+        
+        <div class="test-description">
+            <h3>Что тестируется:</h3>
+            <ul>
+                <li><strong>Базовые совпадения:</strong> Правильное определение 2-back и 3-back совпадений позиций и букв</li>
+                <li><strong>Ложные срабатывания:</strong> Обнаружение случаев, когда пользователь нажимает кнопку без совпадения</li>
+                <li><strong>Пропущенные совпадения:</strong> Обнаружение случаев, когда пользователь не нажал кнопку при наличии совпадения</li>
+                <li><strong>Сложные последовательности:</strong> Тестирование алгоритмов на длинных последовательностях</li>
+                <li><strong>Граничные случаи:</strong> Проверка работы с недостаточной историей и пустыми данными</li>
+                <li><strong>Расчет точности:</strong> Проверка правильности вычисления процента точности</li>
+            </ul>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn" onclick="runAllTests()">🚀 Запустить все тесты</button>
+            <button class="btn secondary" onclick="clearResults()">🗑️ Очистить результаты</button>
+        </div>
+        
+        <div id="success-rate" class="success-rate" style="display: none;"></div>
+        
+        <div id="test-results" class="test-results" style="display: none;"></div>
+    </div>
+
+    <script src="test.js"></script>
+    <script>
+        function runAllTests() {
+            const resultsDiv = document.getElementById('test-results');
+            const successRateDiv = document.getElementById('success-rate');
+            
+            // Clear previous results
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = '';
+            
+            // Capture console output
+            const originalLog = console.log;
+            const logs = [];
+            
+            console.log = function(...args) {
+                logs.push(args.join(' '));
+                originalLog.apply(console, args);
+            };
+            
+            // Run tests
+            const tests = new DualNBackTests();
+            tests.runAllTests();
+            
+            // Restore console
+            console.log = originalLog;
+            
+            // Display results
+            resultsDiv.textContent = logs.join('\n');
+            
+            // Display success rate
+            const successRate = Math.round((tests.passed / (tests.passed + tests.failed)) * 100);
+            successRateDiv.style.display = 'block';
+            successRateDiv.textContent = `📊 Результат: ${tests.passed} прошло, ${tests.failed} провалено (${successRate}% успеха)`;
+            
+            if (tests.failed === 0) {
+                successRateDiv.className = 'success-rate perfect';
+            } else if (successRate >= 80) {
+                successRateDiv.className = 'success-rate partial';
+            } else {
+                successRateDiv.className = 'success-rate failed';
+            }
+        }
+        
+        function clearResults() {
+            document.getElementById('test-results').style.display = 'none';
+            document.getElementById('success-rate').style.display = 'none';
+        }
+        
+        // Auto-run tests if requested
+        if (window.location.search.includes('autorun=true')) {
+            setTimeout(runAllTests, 500);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,28 @@
+{
+  "name": "dual-nback-trainer",
+  "version": "1.0.0",
+  "description": "Тренажер памяти Dual N-Back на русском языке",
+  "main": "index.html",
+  "scripts": {
+    "start": "start index.html",
+    "dev": "python -m http.server 8000"
+  },
+  "keywords": [
+    "dual-nback",
+    "memory-training",
+    "cognitive-training",
+    "brain-training",
+    "russian",
+    "game"
+  ],
+  "author": "AI Assistant",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/dual-nback-trainer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/dual-nback-trainer/issues"
+  },
+  "homepage": "https://github.com/yourusername/dual-nback-trainer#readme"
+} 
